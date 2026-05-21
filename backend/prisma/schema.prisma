@@ -1,0 +1,372 @@
+// This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  username          String    @unique
+  passwordHash      String
+  fullName          String
+  role              Role      @default(USER)
+  emailVerified     Boolean   @default(false)
+
+  // Affiliate
+  affiliateCode     String    @unique
+  referredById      String?
+  referredBy        User?     @relation("Referrals", fields: [referredById], references: [id])
+  referrals         User[]    @relation("Referrals")
+
+  // Relations
+  socialAccounts    SocialAccount[]
+  subscriptions     Subscription[]
+  payments          Payment[]
+  shortlinks        Shortlink[]
+  posts             Post[]
+  affiliateEarnings AffiliateEarning[] @relation("AffiliateEarner")
+  withdrawals       Withdrawal[]
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// Subscription Plans (configured by admin)
+model Plan {
+  id              String    @id @default(uuid())
+  name            String
+  durationMonths  Int
+  price           Int
+  features        Json
+  isActive        Boolean   @default(true)
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now())
+
+  subscriptions   Subscription[]
+}
+
+// User Subscriptions
+model Subscription {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  planId          String
+  plan            Plan      @relation(fields: [planId], references: [id])
+
+  status          SubscriptionStatus
+  startedAt       DateTime  @default(now())
+  expiresAt       DateTime
+  cancelledAt     DateTime?
+
+  paymentId       String?   @unique
+  payment         Payment?  @relation(fields: [paymentId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum SubscriptionStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+// Payments
+model Payment {
+  id                  String    @id @default(uuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id])
+
+  planId              String?
+  amount              Int
+  method              PaymentMethod
+  status              PaymentStatus @default(PENDING)
+
+  providerReference   String?
+  providerData        Json?
+
+  bankAccountId       String?
+  bankAccount         BankAccount? @relation(fields: [bankAccountId], references: [id])
+  proofImageUrl       String?
+  verifiedById        String?
+  verifiedAt          DateTime?
+
+  subscription        Subscription?
+  affiliateEarning    AffiliateEarning?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+enum PaymentMethod {
+  TRIPAY
+  XENDIT
+  MANUAL_BANK
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+// Bank Accounts (for manual transfer - admin configured)
+model BankAccount {
+  id              String    @id @default(uuid())
+  bankName        String
+  accountNumber   String
+  accountHolder   String
+  isActive        Boolean   @default(true)
+  sortOrder       Int       @default(0)
+
+  payments        Payment[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Social Accounts
+model SocialAccount {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+
+  platform          Platform
+  accountName       String
+  accountId         String
+  encryptedCookies  String?   @db.Text
+  encryptedTokens   String?   @db.Text
+
+  proxyEnabled      Boolean   @default(false)
+  proxyConfig       Json?
+
+  status            AccountStatus @default(ACTIVE)
+
+  fanpages          Fanpage[]
+  posts             Post[]
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([userId, platform, accountId])
+}
+
+enum Platform {
+  FACEBOOK
+  INSTAGRAM
+  TWITTER
+  THREADS
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  ERROR
+}
+
+// Facebook Fanpages
+model Fanpage {
+  id                String    @id @default(uuid())
+  socialAccountId   String
+  socialAccount     SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  fanpageId         String
+  fanpageName       String
+  accessToken       String?   @db.Text
+
+  createdAt         DateTime  @default(now())
+}
+
+// Posts (auto post & content)
+model Post {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+
+  type              PostType
+  content           String?   @db.Text
+  mediaUrls         String[]
+  linkUrl           String?
+
+  targetAccounts    Json?
+  threadCount       Int?
+  delaySeconds      Int?
+
+  status            PostStatus @default(DRAFT)
+  scheduledAt       DateTime?
+  postedAt          DateTime?
+  completedAt       DateTime?
+  errorMessage      String?
+
+  totalTargets      Int?
+  completedTargets  Int       @default(0)
+  failedTargets     Int       @default(0)
+
+  aiGenerated       Boolean   @default(false)
+  aiPrompt          String?   @db.Text
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+enum PostType {
+  AUTO_POST_GROUP
+  CARD_CONTENT
+  CAROUSEL
+  THREAD
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PROCESSING
+  POSTED
+  FAILED
+}
+
+// Shortlink Domains (admin managed)
+model Domain {
+  id              String    @id @default(uuid())
+  domain          String    @unique
+  isActive        Boolean   @default(true)
+  isDefault       Boolean   @default(false)
+  sortOrder       Int       @default(0)
+
+  shortlinks      Shortlink[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Shortlinks
+model Shortlink {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+
+  slug            String    @unique
+  domainId        String?
+  domain          Domain?   @relation(fields: [domainId], references: [id])
+  useRandomDomain Boolean   @default(false)
+
+  targetUrls      Json
+  type            ShortlinkType
+  fakeUrl         String?
+  fakeContent     Json?
+
+  clicksToday     Int       @default(0)
+  totalClicks     Int       @default(0)
+
+  clicks          ShortlinkClick[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum ShortlinkType {
+  FAKEURL
+  CONTENT
+}
+
+model ShortlinkClick {
+  id              String    @id @default(uuid())
+  shortlinkId     String
+  shortlink       Shortlink @relation(fields: [shortlinkId], references: [id], onDelete: Cascade)
+
+  ip              String?
+  userAgent       String?
+  country         String?
+  device          String?
+  referrer        String?
+
+  clickedAt       DateTime  @default(now())
+}
+
+// Affiliate System
+model AffiliateSettings {
+  id                    String    @id @default(uuid())
+  commissionRate        Float
+  minWithdrawal         Int
+  cookieDays            Int       @default(30)
+  isActive              Boolean   @default(true)
+
+  updatedAt             DateTime  @updatedAt
+}
+
+model AffiliateEarning {
+  id              String    @id @default(uuid())
+  affiliateUserId String
+  affiliateUser   User      @relation("AffiliateEarner", fields: [affiliateUserId], references: [id])
+
+  paymentId       String    @unique
+  payment         Payment   @relation(fields: [paymentId], references: [id])
+
+  commissionRate  Float
+  amount          Int
+  status          EarningStatus @default(PENDING)
+
+  withdrawalId    String?
+  withdrawal      Withdrawal? @relation(fields: [withdrawalId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  paidAt          DateTime?
+}
+
+enum EarningStatus {
+  PENDING
+  AVAILABLE
+  WITHDRAWN
+  CANCELLED
+}
+
+model Withdrawal {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+
+  amount          Int
+  bankName        String
+  accountNumber   String
+  accountHolder   String
+
+  status          WithdrawalStatus @default(PENDING)
+  notes           String?   @db.Text
+
+  earnings        AffiliateEarning[]
+
+  processedById   String?
+  processedAt     DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+// System Settings
+model SystemSetting {
+  key             String    @id
+  value           Json
+  description     String?
+  updatedAt       DateTime  @updatedAt
+}

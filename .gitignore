@@ -1,0 +1,98 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Environment variables (JANGAN COMMIT!)
+.env
+.env.local
+.env.production
+.env.development
+.env*.local
+*.env
+
+# Credentials (JANGAN COMMIT!)
+credentials*.txt
+*_credentials_*.txt
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Uploads & temp files
+uploads/
+temp/
+tmp/
+*.tmp
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Backups
+backups/
+*.sql
+*.sql.gz
+*.dump
+
+# SSL certificates
+certbot/
+*.pem
+*.key
+*.crt
+
+# PM2
+.pm2/
+ecosystem.config.js
+
+# Prisma
+prisma/migrations/**/migration.sql
+
+# Cache
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
+.npm

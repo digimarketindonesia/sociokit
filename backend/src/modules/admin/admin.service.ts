@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { Role } from '@prisma/client';
 import {
   GetUsersQueryDto,
   UpdateUserDto,
@@ -86,7 +87,6 @@ export class AdminService {
           orderBy: { createdAt: 'desc' },
         },
         payments: {
-          include: { plan: true },
           orderBy: { createdAt: 'desc' },
         },
         socialAccounts: true,
@@ -140,7 +140,10 @@ export class AdminService {
 
     return this.prisma.user.update({
       where: { id: userId },
-      data: dto,
+      data: {
+        ...dto,
+        role: dto.role as Role,
+      },
     });
   }
 
@@ -216,7 +219,6 @@ export class AdminService {
       where: { id: paymentId },
       include: {
         user: true,
-        plan: true,
         bankAccount: true,
         subscription: true,
       },

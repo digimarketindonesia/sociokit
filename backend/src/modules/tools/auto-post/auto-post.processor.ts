@@ -42,7 +42,7 @@ export class AutoPostProcessor {
         throw new Error('Post not found');
       }
 
-      const targetAccounts = post.targetAccounts as AccountTargetData[];
+      const targetAccounts = (post.targetAccounts as any) as AccountTargetData[];
       const threadCount = post.threadCount || 1;
       const delaySeconds = post.delaySeconds || 0;
 

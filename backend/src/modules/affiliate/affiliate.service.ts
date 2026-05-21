@@ -95,11 +95,6 @@ export class AffiliateService {
                   fullName: true,
                 },
               },
-              plan: {
-                select: {
-                  name: true,
-                },
-              },
             },
           },
         },

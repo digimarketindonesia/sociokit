@@ -65,11 +65,6 @@ export class FacebookService {
       },
       include: {
         fanpages: true,
-        _count: {
-          select: {
-            posts: true,
-          },
-        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -77,7 +72,6 @@ export class FacebookService {
     return accounts.map((account) => ({
       ...account,
       encryptedCookies: undefined, // Don't expose encrypted cookies
-      postsCount: account._count.posts,
     }));
   }
 

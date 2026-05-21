@@ -4,6 +4,7 @@ import { TripayService } from './tripay/tripay.service';
 import { XenditService } from './xendit/xendit.service';
 import { ConfigService } from '@nestjs/config';
 import { addMonths } from 'date-fns';
+import { PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
@@ -194,7 +195,7 @@ export class PaymentService {
       throw new NotFoundException('Payment not found');
     }
 
-    const status = this.tripayService.mapStatusToPaymentStatus(data.status);
+    const status = this.tripayService.mapStatusToPaymentStatus(data.status) as PaymentStatus;
 
     await this.prisma.payment.update({
       where: { id: payment.id },
@@ -217,7 +218,7 @@ export class PaymentService {
       throw new NotFoundException('Payment not found');
     }
 
-    const status = this.xenditService.mapStatusToPaymentStatus(data.status);
+    const status = this.xenditService.mapStatusToPaymentStatus(data.status) as PaymentStatus;
 
     await this.prisma.payment.update({
       where: { id: payment.id },

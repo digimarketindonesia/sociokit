@@ -157,7 +157,6 @@ model SocialAccount {
   status            AccountStatus @default(ACTIVE)
 
   fanpages          Fanpage[]
-  posts             Post[]
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

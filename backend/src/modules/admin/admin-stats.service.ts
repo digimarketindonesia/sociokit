@@ -89,9 +89,6 @@ export class AdminStatsService {
         user: {
           select: { email: true, username: true },
         },
-        plan: {
-          select: { name: true },
-        },
       },
     });
 

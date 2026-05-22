@@ -4,7 +4,8 @@
       "Bash(cd /e/sociotools && ls -la backend/src/modules/tools/)",
       "Bash(npm run *)",
       "Bash(cd /e/sociotools && find . -name \"PROJECT_STATUS.md\" -type f 2>/dev/null)",
-      "Bash(chmod +x deploy.sh backup.sh setup-ssl.sh)"
+      "Bash(chmod +x deploy.sh backup.sh setup-ssl.sh)",
+      "Bash(echo \"sed -i 's|CMD \\\\\\\\[\\\\\"node\\\\\", \\\\\"dist/main.js\\\\\"\\\\\\\\]|CMD [\\\\\"node\\\\\", \\\\\"dist/src/main.js\\\\\"]|' /var/www/sociokit/backend/Dockerfile\")"
     ]
   }
 }

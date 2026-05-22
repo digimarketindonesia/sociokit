@@ -1,0 +1,12 @@
+○ nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (]8;;file://sociokit/usr/lib/systemd/system/nginx.service/usr/lib/systemd/system/nginx.service]8;;; [0;1;38;5;185mdisabled[0m; preset: [0;1;32menabled[0m)
+     Active: inactive (dead)
+       Docs: ]8;;man:nginx(8)man:nginx(8)]8;;
+
+May 21 16:24:57 sociokit systemd[1]: Starting nginx.service - A high performance web server and a reverse proxy server...
+May 21 16:24:57 sociokit systemd[1]: Started nginx.service - A high performance web server and a reverse proxy server.
+May 21 19:30:20 sociokit systemd[1]: Stopping nginx.service - A high performance web server and a reverse proxy server...
+May 21 19:30:20 sociokit systemd[1]: nginx.service: Deactivated successfully.
+May 21 19:30:20 sociokit systemd[1]: Stopped nginx.service - A high performance web server and a reverse proxy server.
+May 21 19:31:26 sociokit systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mnginx.service: Unit cannot be reloaded because it is inactive.[0m
+May 21 19:31:53 sociokit systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mnginx.service: Unit cannot be reloaded because it is inactive.[0m

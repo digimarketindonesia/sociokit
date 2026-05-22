@@ -193,7 +193,6 @@ export class AdminService {
               fullName: true,
             },
           },
-          plan: true,
           bankAccount: true,
         },
         orderBy: { createdAt: 'desc' },
